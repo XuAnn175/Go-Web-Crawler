@@ -32,6 +32,7 @@ func main() {
 			"--disable-dev-shm-usage",
 			"--disable-notifications", // Block notifications
 			"--start-maximized",
+			// "--headless",
 		},
 	}
 	caps.AddChrome(chromeCaps)
@@ -52,7 +53,7 @@ func main() {
 	keywords := []string{
 		"冰箱", "手錶", "手套", "套房", "票", 
 		"GeForce", "BTS", "Airpod",
-		"二手", "販售", "售", "賣", // Added more relevant keywords
+		// "二手", "販售", "售", "賣", // Added more relevant keywords
 	}
 
 	// Navigate to group and scan posts
@@ -103,7 +104,7 @@ func loginToFacebook(driver selenium.WebDriver, account, password string) error 
 		return fmt.Errorf("couldn't find login button: %v", err)
 	}
 
-	time.Sleep(3 * time.Second) // Wait for login
+	time.Sleep(30 * time.Second) // Wait for login
 	return nil
 }
 
@@ -111,8 +112,8 @@ func scanGroupPosts(driver selenium.WebDriver, groupURL string, keywords []strin
     if err := driver.Get(groupURL); err != nil {
 		return err
 	}
-	time.Sleep(2 * time.Second)
-
+	time.Sleep(5 * time.Second)
+	clickNewPost(driver)
 	postsFound := 0
 	lastPostCount := 0
 	attempts := 0
@@ -121,12 +122,14 @@ func scanGroupPosts(driver selenium.WebDriver, groupURL string, keywords []strin
     for postsFound < postLimit && attempts < maxAttempts {
         driver.ExecuteScript("window.scrollTo(0, document.body.scrollHeight)", nil)
         expandPosts(driver)
-        time.Sleep(2 * time.Second)
+		
+        time.Sleep(4 * time.Second)
+		posts, _ := driver.FindElements(selenium.ByCSSSelector, "div.x1yztbdb:not([aria-hidden='true'])")
 
-        posts, err := driver.FindElements(selenium.ByCSSSelector, "div[role='article']")
-        if err != nil || len(posts) == 0 {
-            posts, _ = driver.FindElements(selenium.ByCSSSelector, "div.x1yztbdb:not([aria-hidden='true'])")
-        }
+        // posts, err := driver.FindElements(selenium.ByCSSSelector, "div[role='article']")
+        // if err != nil || len(posts) == 0 {
+        //     posts, _ = driver.FindElements(selenium.ByCSSSelector, "div.x1yztbdb:not([aria-hidden='true'])")
+        // }
 
         if len(posts) == lastPostCount {
             attempts++
@@ -186,4 +189,20 @@ func expandPosts(driver selenium.WebDriver) {
 			}
 		}
 	}
+	time.Sleep(3 * time.Second)
+}
+
+func clickNewPost(driver selenium.WebDriver) {
+	// if expandbutton,err := driver.FindElement(selenium.ByCSSSelector,"//*[@id='mount_0_0_PM']/div/div[1]/div/div[3]/div/div/div[1]/div[1]/div[4]/div/div[2]/div/div/div/div[2]/div[2]/div[1]/div/div/div/div/div/div/div/span/div/div[2]/div/div[2]/div/svg"); err == nil {
+	// 	expandbutton.Click()
+	// }
+	if expandbutton, err := driver.FindElement(selenium.ByXPATH, "//span[contains(text(),'最相關')]"); err == nil {
+		fmt.Println("找到最相關")
+		expandbutton.Click()
+	}
+	if newPostBtn, err := driver.FindElement(selenium.ByXPATH, "//span[contains(text(),'新貼文')]"); err == nil {
+		fmt.Println("找到新貼文")
+		newPostBtn.Click()
+	}
+	time.Sleep(3 * time.Second)
 }
