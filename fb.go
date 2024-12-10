@@ -104,7 +104,7 @@ func loginToFacebook(driver selenium.WebDriver, account, password string) error 
 		return fmt.Errorf("couldn't find login button: %v", err)
 	}
 
-	time.Sleep(3 * time.Second) // Wait for login
+	time.Sleep(30 * time.Second) // Wait for login
 	return nil
 }
 
