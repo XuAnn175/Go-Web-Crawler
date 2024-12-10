@@ -51,8 +51,8 @@ func main() {
 
 	// Keywords to search for
 	keywords := []string{
-		"冰箱", "手錶", "手套", "套房", "票", 
-		"GeForce", "BTS", "Airpod",
+		"冰箱", "手錶", "手套", "麻將", 
+		"GeForce", "BTS", "airpods","盈利",
 		// "二手", "販售", "售", "賣", // Added more relevant keywords
 	}
 
@@ -104,7 +104,7 @@ func loginToFacebook(driver selenium.WebDriver, account, password string) error 
 		return fmt.Errorf("couldn't find login button: %v", err)
 	}
 
-	time.Sleep(30 * time.Second) // Wait for login
+	time.Sleep(3 * time.Second) // Wait for login
 	return nil
 }
 
@@ -155,7 +155,9 @@ func scanGroupPosts(driver selenium.WebDriver, groupURL string, keywords []strin
                 keywordRunes := []rune(keyword)
                 if strings.Contains(string(postText), string(keywordRunes)) {
                     fmt.Printf("\n=== 找到包含 '%s' 的貼文 ===\n", keyword)
-                    fmt.Printf("貼文內容:\n%s\n", text)
+					parts := strings.Split(text, "所有心情")
+					cleanText := parts[0]
+					fmt.Printf("貼文內容:\n%s\n", cleanText)			
                     fmt.Println("=====================================")
                     
                     // Try to get post timestamp and URL
@@ -185,7 +187,7 @@ func expandPosts(driver selenium.WebDriver) {
 	if seeMoreBtns, err := driver.FindElements(selenium.ByXPATH, "//div[contains(text(),'查看更多')]"); err == nil {
 		for _, btn := range seeMoreBtns {
 			if err := btn.Click(); err == nil {
-				time.Sleep(10000 * time.Millisecond)
+				time.Sleep(1 * time.Second)
 			}
 		}
 	}
@@ -200,6 +202,7 @@ func clickNewPost(driver selenium.WebDriver) {
 		fmt.Println("找到最相關")
 		expandbutton.Click()
 	}
+	time.Sleep(3 * time.Second)
 	if newPostBtn, err := driver.FindElement(selenium.ByXPATH, "//span[contains(text(),'新貼文')]"); err == nil {
 		fmt.Println("找到新貼文")
 		newPostBtn.Click()
